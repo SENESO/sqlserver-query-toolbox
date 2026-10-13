@@ -8,10 +8,13 @@
 
 -- 1) Top 10 slowest queries by total CPU since the last restart.
 --    Run this on the real server, not on the sample database.
+--    NOTE: divide by 1000.0 (not 1000) — total_worker_time is bigint
+--    microseconds, and integer division would truncate AvgCpuMs to 0 for
+--    fast queries.
 SELECT TOP 10
-    qs.total_worker_time / 1000 AS TotalCpuMs,
+    qs.total_worker_time / 1000.0 AS TotalCpuMs,
     qs.execution_count AS Executions,
-    (qs.total_worker_time / 1000) / NULLIF(qs.execution_count, 0) AS AvgCpuMs,
+    (qs.total_worker_time / 1000.0) / NULLIF(qs.execution_count, 0) AS AvgCpuMs,
     SUBSTRING(st.text, 1, 200) AS QueryPreview
 FROM sys.dm_exec_query_stats qs
 CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st

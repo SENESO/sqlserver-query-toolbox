@@ -2,6 +2,10 @@
 *.bak
 *.trn
 
+# .NET build artifacts (NuGet content-packaging project)
+bin/
+obj/
+
 # OS
 .DS_Store
 Thumbs.db

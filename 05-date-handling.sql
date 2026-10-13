@@ -29,11 +29,24 @@ SELECT SaleId, SaleDate, Amount
 FROM dbo.Sales
 WHERE SaleDate >= DATEFROMPARTS(YEAR(GETDATE()), 1, 1);
 
--- 3) Tenure: full years and total months since hire.
+-- 3) Tenure: FULL years since hire.
+--    CAREFUL — this is the classic DATEDIFF trap: DATEDIFF(YEAR, ...) counts
+--    year *boundaries* crossed, not completed years. Someone hired on
+--    2021-11-11 shows DATEDIFF(YEAR) = 5 in Oct 2026, but their 5th work
+--    anniversary hasn't happened yet — they have only completed 4 full years.
+--    The CASE below subtracts 1 when this year's anniversary is still ahead.
 SELECT FirstName,
        LastName,
        HireDate,
-       DATEDIFF(YEAR, HireDate, GETDATE()) AS TenureYears,
+       DATEDIFF(YEAR, HireDate, CAST(GETDATE() AS DATE)) AS CalendarYearDiff,
+       DATEDIFF(YEAR, HireDate, CAST(GETDATE() AS DATE))
+         - CASE
+               WHEN DATEADD(YEAR,
+                            DATEDIFF(YEAR, HireDate, CAST(GETDATE() AS DATE)),
+                            HireDate) > CAST(GETDATE() AS DATE)
+               THEN 1
+               ELSE 0
+           END AS TenureFullYears,
        DATEDIFF(MONTH, HireDate, GETDATE()) AS TenureMonths
 FROM dbo.Employees
 ORDER BY HireDate;

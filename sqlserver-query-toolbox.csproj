@@ -1,0 +1,49 @@
+<!--
+  NuGet packaging for sqlserver-query-toolbox.
+
+  This is a CONTENT-ONLY package: it ships the documented .sql scripts into
+  consuming projects (no .NET code is compiled). Install with:
+      dotnet add package SENESO.SqlServerQueryToolbox
+  The scripts land under the project's sql/ content folder, ready to open in
+  SSMS / Azure Data Studio.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+
+    <!-- No code in this package: skip compilation and build output. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+
+    <!-- CS2008 + NU5128 are inherent to content-only packages (no assemblies
+         are supposed to exist); suppressing them is the documented approach. -->
+    <NoWarn>$(NoWarn);CS2008;NU5128</NoWarn>
+
+    <!-- Package identity -->
+    <PackageId>SENESO.SqlServerQueryToolbox</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Eslam Ashraf</Authors>
+    <Company>SENESO</Company>
+    <Description>A toolbox of SQL Server scripts covering the queries backend developers actually use: window functions, CTEs, indexing, performance diagnostics, date handling, and transactions. Every script is documented and runs against the same small sample database.</Description>
+    <PackageProjectUrl>https://github.com/SENESO/sqlserver-query-toolbox</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SENESO/sqlserver-query-toolbox</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>sql-server;tsql;database;scripts;query-toolbox</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Ship every script as project content for consumers:
+         contentFiles/ = SDK-style (PackageReference) projects,
+         content/      = legacy packages.config projects. -->
+    <Content Include="*.sql" Pack="true" PackagePath="contentFiles/any/any/sql/;content/sql/" />
+    <!-- README shown on nuget.org -->
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <!-- LICENSE shown on nuget.org -->
+    <None Include="LICENSE" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
